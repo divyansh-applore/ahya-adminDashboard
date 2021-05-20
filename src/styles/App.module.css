@@ -1,0 +1,38 @@
+.appContainer {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+}
+.navContainer {
+    width: var(--nav-width);
+    height: 100%;
+}
+.mainContainer {
+    width: calc(100vw - var(--nav-width));
+    height: 100%;
+    overflow-y: scroll;
+}
+.mainContainer::-webkit-scrollbar {
+    width: 8px;
+    border-radius: 2px;
+}
+
+.mainContainer::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+.mainContainer::-webkit-scrollbar-thumb {
+    background-color: darkgrey;
+    outline: 1px solid slategrey;
+    border-radius: 4px;
+    width: 6px;
+}
+
+@media only screen and (max-width: 1450px) {
+    .navContainer {
+        width: var(--nav-width);
+    }
+    .mainContainer {
+        width: calc(100vw - var(--nav-width));
+    }
+}

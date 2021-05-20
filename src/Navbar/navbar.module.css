@@ -1,0 +1,98 @@
+.container {
+    width: 100%;
+    height: 100%;
+    border-right: 1px solid rgb(236, 236, 236);
+    background-color: var(--background-color);
+}
+.container::-webkit-scrollbar {
+    width: 0px;
+}
+
+.container::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    width: 0px;
+}
+
+.container::-webkit-scrollbar-thumb {
+    background-color: darkgrey;
+    outline: 1px solid slategrey;
+    width: 0px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    height: 80px; 
+    justify-content: center;
+    color: blue;
+    font-size: 40;
+}
+.header h1 {
+    font-size: 20px;
+    font-weight: 500;
+    flex: 1;
+    margin-left: 10px;
+}
+.header img {
+    width: 40px;
+    margin-left: 20px;
+}
+.navItems {
+    display: flex;
+    width: calc(100% - 100px);
+    align-items: center;
+    flex-direction: column;
+}
+.navItem,
+.activeNavItem {
+    display: flex;
+    width: calc(90% - 50px);
+    padding: 12px 25px; 
+    align-items: center;
+    color: #333;
+    margin: 6px 0px; 
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all 0.5s;
+}
+.navItem p,
+.activeNavItem p {
+    margin: 0px;
+    margin-left: 15px;
+    font-size: 18px;
+}
+
+.activeNavItem {
+    color: blue;
+}
+.navItem:hover,
+.navItem:hover p {
+    cursor: pointer;
+    color: var(--primary-color);
+    text-decoration: none; 
+}
+.activeNavItem:hover {
+    cursor: pointer;
+    color: black;
+    text-decoration: none; 
+}
+.activeNavItem:hover p {
+    color: black;
+}
+.activeNavItem { 
+    background-color: var(--primary-color);
+}
+
+
+
+@media screen and (max-width:768px) {
+    .container{
+        transform: translateX(-120%);
+        position: fixed;
+        background-color: white;
+        background: white;
+        z-index: 100;
+        width: auto;
+    }    
+
+}

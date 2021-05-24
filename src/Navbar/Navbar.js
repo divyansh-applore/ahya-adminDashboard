@@ -15,6 +15,7 @@ import {
 import ConfirmationNumberIcon from "@material-ui/icons/ConfirmationNumber";
 import KeyboardBackspaceIcon from "@material-ui/icons/KeyboardBackspace";
 import { NavbarContext } from "../ContextApi/NavbarProvider";
+import AccountBalanceWalletIcon from "@material-ui/icons/AccountBalanceWallet";
 import { logout } from "../helpers/helper";
 
 const NavBar = ({ history }) => {
@@ -72,17 +73,34 @@ const NavBar = ({ history }) => {
           <p>Partner Tickets</p>
         </NavLink>
 
-        {/* <div className={styles.navItem}> */}
-        <Button
-          size="large"
-          className="bg-danger text-white mt-3 ml-5"
-          onClick={() => logout(() => history.push("/"))}
+        <NavLink
+          className={styles.navItem}
+          to="/admin/all/bookings"
+          activeClassName={styles.activeNavItem}
         >
+          <AccountBalanceWalletIcon />
+          <p>Bookings</p>
+        </NavLink>
+
+        <NavLink
+          className={styles.navItem}
+          to="/admin/user/tickets"
+          activeClassName={styles.activeNavItem}
+        >
+          <ConfirmationNumberIcon />
+          <p>User Tickets</p>
+        </NavLink>
+
+        <div className={styles.navItem}>
           <KeyboardBackspaceIcon />
-          Logout
-        </Button>
-        {/* </div> */}
-        {/* {!Auth && <Redirect from="/" to="/" />} */}
+          <Button
+            size="large"
+            className="bg-danger text-white pl-5 pr-5"
+            onClick={() => logout(() => history.push("/"))}
+          >
+            Logout
+          </Button>
+        </div>
       </div>
     </div>
   );

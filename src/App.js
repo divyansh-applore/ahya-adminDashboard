@@ -18,7 +18,9 @@ import { createBrowserHistory } from "history";
 import { NavbarContext, NavbarProvider } from "./ContextApi/NavbarProvider";
 
 import { isAuthenticated } from "./helpers/helper";
-import PartnerTickets from "./Partner Tickets/PartnerTickets";
+import PartnerTickets from "./PartnerTickets/PartnerTickets";
+import UserTickets from "./UserTickets/UserTickets";
+import AllBookings from "./Bookings/Bookings";
 
 const hist = createBrowserHistory();
 
@@ -26,7 +28,6 @@ function App() {
   return (
     <Router>
       <Switch>
-        {/* {!isAuthenticated() && <Route exact path="/" component={login} />} */}
         <Route exact path="/" component={login} />
         <Privateroute exact path="/admin/categories" component={Categories} />
         <Privateroute exact path="/admin/members" component={Members} />
@@ -40,6 +41,18 @@ function App() {
           exact
           path="/admin/partner/tickets"
           component={PartnerTickets}
+        />
+
+        <Privateroute
+          exact
+          path="/admin/user/tickets"
+          component={UserTickets}
+        />
+
+        <Privateroute
+          exact
+          path="/admin/all/bookings"
+          component={AllBookings}
         />
 
         <Route

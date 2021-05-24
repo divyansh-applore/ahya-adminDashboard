@@ -16,15 +16,6 @@ import { API } from "../Backend";
 import Loader from "../loader/Loader";
 import { Edit } from "@material-ui/icons";
 
-import S3 from "react-aws-s3";
-
-const config = {
-  bucketName: "ahya-bucket",
-  region: "us-west-2",
-  accessKeyId: "AKIASOGVIHKZV2RVY3VB",
-  secretAccessKey: "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",
-};
-
 function Services() {
   const [edit, setedit] = useState();
   let [Category, setCategory] = useState([]);
@@ -55,13 +46,16 @@ function Services() {
       transform: "translate(-50%, -50%)",
     },
   };
-  const [formData, setFormData] = React.useState({
+  const [EditFormData, setEditFormData] = React.useState({
     name: "",
-    imageUrl: "",
+    cover: "",
     keywords: [],
     status: "",
-    category: "",
+    category: "609668cb9faac80cb66d352b",
     partner: "",
+    galleryImage: "",
+    amount: "",
+    duration: "",
   });
 
   const [Values, setValues] = useState({
@@ -69,18 +63,32 @@ function Services() {
     imageUrl: "",
     keywords: [],
     status: "true",
-    category: "",
+    category: "609668cb9faac80cb66d352b",
     partner: "",
+    amount: "",
+    duration: "",
+    cover: "",
+    galleryImage: "",
+    formData: "",
   });
 
-  const { name, imageUrl, keywords, status, category, partner } = Values;
+  const {
+    name,
+    keywords,
+    amount,
+    duration,
+    status,
+    category,
+    partner,
+    cover,
+    galleryImage,
+    formData,
+  } = Values;
 
   const [Chips, setChips] = useState([]);
   const [EditChips, setEditChips] = useState("");
   const [Partners, setPartners] = useState([]);
   const [Categories, setCategories] = useState([]);
-  const [EditImageUrl, setEditImageUrl] = useState("");
-  const [EditImage, setEditImage] = useState(false);
 
   // useEffect hooks
   useEffect(() => {
@@ -118,6 +126,7 @@ function Services() {
       .then((data) => {
         console.log("CATEGORIES", data);
         setCategories(data.data);
+        setValues({ ...Values, formData: new FormData() });
       })
       .catch((err) => console.log(err));
   };
@@ -125,73 +134,66 @@ function Services() {
   const submitHandler = (e) => {
     e.preventDefault();
     console.log(Values);
-    setValues({ ...Values });
+
+    setValues({ ...Values, keywords: [...Chips] });
+
+    formData.append("status", status);
+    formData.append("keywords", [...keywords]);
+    formData.append("galleryImage", galleryImage);
+    formData.append("category", category);
+
+    console.log("FORM DATA BEFORE SENDING", formData);
+
     setLoading(true);
 
-    // s3 instance
-    const ReactS3Client = new S3(config);
-
-    ReactS3Client.uploadFile(imageUrl, `picture/${Date.now()}${imageUrl.name}`)
-      .then((s3Data) => {
-        console.log("S3", s3Data.location);
-        axios
-          .post(`${API}api/admin/create/service`, {
-            name,
-            imageUrl: s3Data.location,
-            keywords: Chips,
-            status,
-            category,
-            partner,
-          })
-          .then((data) => {
-            console.log(data);
-            setrefresh((data) => data + 1);
-            setValues({
-              name: "",
-              imageUrl: "",
-              keywords: [],
-              status: "true",
-              category: "",
-              partner: "",
-            });
-            setChips([]);
-            setLoading(false);
-          })
-          .catch((err) => {
-            console.log(err);
-            setLoading(false);
-          });
+    axios
+      .post(`${API}api/admin/create/service`, formData, {
+        headers: {
+          "Content-type": "application/json",
+          Accept: "application/json ",
+        },
       })
-      .catch((s3Err) => {
-        console.log("S3 Error", s3Err);
+      .then((data) => {
+        if (data.error) {
+          alert(data.message);
+        }
+        setValues({
+          name: "",
+          imageUrl: "",
+          keywords: [],
+          status: "true",
+          category: "609668cb9faac80cb66d352b",
+          partner: "",
+          amount: "",
+          duration: "",
+          cover: "",
+          galleryImage: "",
+          formData: "",
+        });
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setValues({
+          name: "",
+          imageUrl: "",
+          keywords: [],
+          status: "true",
+          category: "609668cb9faac80cb66d352b",
+          partner: "",
+          amount: "",
+          duration: "",
+          cover: "",
+          galleryImage: "",
+          formData: "",
+        });
         setLoading(false);
       });
   };
 
-  console.log("EditImageUrl", EditImageUrl);
-  console.log("Edit", imageUrl);
-
   // update service
   function EditformSubmit(serviceId) {
     setLoading(true);
-
-    const ReactS3Client = new S3(config);
-
-    console.log("FORM DATA BEFORE S3", formData);
-
-    ReactS3Client.uploadFile(
-      EditImageUrl,
-      `picture/${Date.now()}${EditImageUrl.name}`
-    )
-      .then((s3Data) => {
-        console.log("S3 RESPONSE", s3Data);
-        setEditImage(s3Data.location);
-        console.log("FORM DATA BEFORE UPDATING", formData);
-      })
-      .catch((s3Err) => {
-        alert("Failed to upload image to s3!");
-        setLoading(false);
-      });
   }
 
   // delete Service
@@ -207,23 +209,27 @@ function Services() {
       })
       .catch((err) => {
         console.log(err);
+
         setLoading(false);
       });
   }
 
+  //* console logs
+  console.log("Values", Values);
+
   // changeHandler
-  const changeHandler = (name) => (e) => {
-    let value = e.target.value;
+  const changeHandler = (name) => (event) => {
+    let value = name === "cover" ? event.target.files[0] : event.target.value;
+    formData.set(name, value);
     setValues({ ...Values, [name]: value });
   };
-
-  console.log("EDIT IMAGE URL", EditImageUrl);
 
   // handleChange
   const handleChange = (chips) => {};
 
   const handleAddChip = (chip) => {
     setChips([...Chips, chip]);
+    setValues({ ...Values, keywords: [...Chips, chip] });
   };
 
   const handleDeleteChip = (chip, index) => {
@@ -236,7 +242,7 @@ function Services() {
 
   const editHandleAddChip = (chip) => {
     setEditChips([...EditChips, chip]);
-    setFormData({ ...formData, Keywords: [...EditChips] });
+    setEditFormData({ ...formData, Keywords: [...EditChips] });
   };
   const editHandleDeleteChip = (chip, index) => {
     let remainingChips = EditChips.filter((val, inx) => inx != index);
@@ -270,40 +276,90 @@ function Services() {
                 style={{ width: "100%" }}
                 id="standard-basic"
                 label="Service Name"
+                value={name}
                 onChange={changeHandler("name")}
               />
               <br />
               <br />
 
+              <TextField
+                style={{ width: "100%" }}
+                id="standard-basic"
+                label="Amount"
+                value={amount}
+                onChange={changeHandler("amount")}
+              />
+              <br />
+              <br />
+
+              <InputLabel id="demo-simple-select-label">Cover Image</InputLabel>
               <Button variant="contained" component="label">
                 Upload File
                 <input
                   style={{ width: "100%" }}
-                  onChange={(e) =>
-                    setValues({ ...Values, imageUrl: e.target.files[0] })
-                  }
+                  onChange={changeHandler("cover")}
                   type="file"
                   hidden
                 />
               </Button>
 
-              {imageUrl ? (
+              <br />
+              <br />
+              {cover ? (
                 <>
+                  {cover.name}
                   <br />
                   <br />
-                  {imageUrl.name}
                 </>
               ) : (
                 ""
               )}
+
+              <TextField
+                style={{ width: "100%" }}
+                id="standard-basic"
+                label="Duration"
+                value={duration}
+                onChange={changeHandler("duration")}
+              />
               <br />
               <br />
+
+              <InputLabel id="demo-simple-select-label">
+                Gallery Image
+              </InputLabel>
+              <Button variant="contained" component="label">
+                Upload File
+                <input
+                  style={{ width: "100%" }}
+                  onChange={(e) =>
+                    setValues({
+                      ...Values,
+                      galleryImage: e.target.files[0],
+                    })
+                  }
+                  type="file"
+                  hidden
+                />
+              </Button>
+              <br />
+              <br />
+
+              {galleryImage ? (
+                <>
+                  {galleryImage.name}
+                  <br />
+                  <br />
+                </>
+              ) : (
+                ""
+              )}
 
               <InputLabel id="demo-simple-select-label">Status</InputLabel>
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
-                defaultValue={status}
+                value={status}
               >
                 <option value="true">True</option>
                 <option value="false">False</option>
@@ -330,25 +386,7 @@ function Services() {
               <br />
               <br />
 
-              <InputLabel id="demo-simple-select-label">Category</InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                onChange={changeHandler("category")}
-                value={category}
-              >
-                {Categories &&
-                  Categories.map((val) => {
-                    return (
-                      <option key={val._id} value={val._id}>
-                        {val.categoryName}
-                      </option>
-                    );
-                  })}
-              </Select>
-              <br />
-              <br />
-
+              <InputLabel id="demo-simple-select-label">Keywords</InputLabel>
               <ChipInput
                 style={{ width: "100%" }}
                 value={Chips}
@@ -375,7 +413,7 @@ function Services() {
               <TextField
                 label="ServiceName"
                 onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
+                  setEditFormData({ ...formData, name: e.target.value })
                 }
                 defaultValue={edit.name}
               ></TextField>
@@ -386,7 +424,7 @@ function Services() {
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
                 onChange={(e) =>
-                  setFormData({ ...formData, status: e.target.value })
+                  setEditFormData({ ...formData, status: e.target.value })
                 }
                 defaultValue={edit.status}
               >
@@ -400,25 +438,11 @@ function Services() {
                 Upload File
                 <input
                   style={{ width: "100%" }}
-                  onChange={(e) => setEditImageUrl(e.target.files[0])}
+                  // onChange={(e) => setEditImageUrl(e.target.files[0])}
                   type="file"
                   hidden
                 />
               </Button>
-
-              {EditImageUrl.name ? (
-                <>
-                  <br />
-                  <br />
-                  {EditImageUrl.name}
-                </>
-              ) : (
-                <>
-                  <br />
-                  <br />
-                  {edit.imageUrl}
-                </>
-              )}
 
               <br />
               <br />
@@ -428,7 +452,7 @@ function Services() {
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
                 onChange={(e) =>
-                  setFormData({ ...formData, partner: e.target.value })
+                  setEditFormData({ ...formData, partner: e.target.value })
                 }
                 defaultValue={edit.partner._id}
               >
@@ -448,7 +472,7 @@ function Services() {
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
                 onChange={(e) =>
-                  setFormData({ ...formData, category: e.target.value })
+                  setEditFormData({ ...formData, category: e.target.value })
                 }
                 defaultValue={edit.category._id}
               >
@@ -492,7 +516,7 @@ function Services() {
                 Edit={(data) => {
                   setedit(data);
                   setmodalIsOpen(true);
-                  setFormData({
+                  setEditFormData({
                     ServiceName: data.ServiceName,
                     Status: data.Status,
                     ImageURL: data.ImageURL,
